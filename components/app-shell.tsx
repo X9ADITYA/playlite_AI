@@ -27,8 +27,10 @@ export function AppShell({ user, children }: Readonly<{ user: { name: string; em
               </div>
             </Link>
             <Card className="border-white/10 bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-slate-500">Signed in</p>
-              <p className="mt-2 text-lg font-semibold">{user?.name ?? 'Guest mode'}</p>
+              <p className="text-xs uppercase tracking-[0.22em] text-slate-500">
+                {user ? 'Signed in' : 'Guest mode'}
+              </p>
+              <p className="mt-2 text-lg font-semibold">{user?.name ?? 'Browsing as guest'}</p>
               <p className="text-sm text-slate-400">{user?.email ?? 'Sign in to personalize recommendations.'}</p>
             </Card>
           </div>
@@ -50,15 +52,18 @@ export function AppShell({ user, children }: Readonly<{ user: { name: string; em
           </nav>
 
           <div className="mt-auto space-y-3">
-            <Button className="w-full" asChild>
-              <Link href="/signup">Create account</Link>
-            </Button>
-            <form action="/api/auth/logout" method="post">
-              <Button type="submit" variant="ghost" className="w-full justify-start">
-                <LogOut className="h-4 w-4" />
-                Sign out
+            {user ? (
+              <form action="/api/auth/logout" method="post">
+                <Button type="submit" variant="ghost" className="w-full justify-start">
+                  <LogOut className="h-4 w-4" />
+                  Sign out
+                </Button>
+              </form>
+            ) : (
+              <Button className="w-full" asChild>
+                <Link href="/signup">Create account</Link>
               </Button>
-            </form>
+            )}
           </div>
         </aside>
 

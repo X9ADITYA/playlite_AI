@@ -15,6 +15,7 @@ export function VideoPlayer({
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const lastSentRef = useRef(0);
   const [playing, setPlaying] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
 
   useEffect(() => {
     const media = videoRef.current;
@@ -40,7 +41,10 @@ export function VideoPlayer({
       void sendProgress(false);
     };
 
-    const onPlay = () => setPlaying(true);
+    const onPlay = () => {
+      setPlaying(true);
+      setHasStarted(true);
+    };
     const onPause = () => setPlaying(false);
     const onEnded = () => {
       setPlaying(false);
@@ -60,18 +64,30 @@ export function VideoPlayer({
     };
   }, [onProgress]);
 
+  const showOverlay = !hasStarted && !playing;
+
   return (
     <div className="space-y-4">
-      <div className="relative overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-glow">
-        <video ref={videoRef} className="aspect-video w-full bg-black" controls poster={video.thumbnailUrl ?? '/video-thumb.svg'}>
+      <div className="group relative overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-glow">
+        <video
+          ref={videoRef}
+          className="aspect-video w-full bg-black"
+          controls
+          poster={video.thumbnailUrl ?? '/video-thumb.svg'}
+        >
           <source src={video.videoUrl} />
         </video>
-        {!playing ? (
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-black/20">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur">
+        {showOverlay ? (
+          <button
+            type="button"
+            onClick={() => videoRef.current?.play()}
+            aria-label={`Play ${video.title}`}
+            className="absolute inset-0 flex items-center justify-center bg-black/25 transition hover:bg-black/35"
+          >
+            <div className="flex h-20 w-20 items-center justify-center rounded-full border border-white/15 bg-white/10 text-white backdrop-blur transition group-hover:scale-105">
               <Play className="h-8 w-8 fill-white" />
             </div>
-          </div>
+          </button>
         ) : null}
       </div>
 

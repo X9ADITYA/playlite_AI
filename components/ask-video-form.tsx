@@ -16,13 +16,16 @@ export function AskVideoForm({
   transcript: string;
   timestamps: Array<{ label: string; time: string; note: string }>;
 }>) {
-  const [question, setQuestion] = useState('What is the main takeaway?');
+  const [question, setQuestion] = useState('');
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState<{ answer: string; timestamp?: string } | null>(null);
 
   async function ask(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!question.trim()) return;
+
     setLoading(true);
+    setAnswer(null);
 
     try {
       const response = await fetch('/api/ai/ask', {
@@ -50,18 +53,24 @@ export function AskVideoForm({
         </div>
       </div>
 
-      <form className="space-y-3" onSubmit={ask}>
-        <Input value={question} onChange={(event) => setQuestion(event.target.value)} placeholder="Ask a question about this video" />
-        <Button type="submit" disabled={loading} className="w-full">
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          Ask
+      <form className="flex flex-col gap-3 sm:flex-row" onSubmit={ask}>
+        <Input
+          value={question}
+          onChange={(event) => setQuestion(event.target.value)}
+          placeholder="e.g. What is the main takeaway?"
+          className="flex-1"
+        />
+        <Button type="submit" disabled={loading || !question.trim()} className="sm:w-28">
+          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Ask'}
         </Button>
       </form>
 
       {answer ? (
         <div className="mt-4 rounded-2xl border border-white/10 bg-white/5 p-4 text-sm leading-6 text-slate-300">
           <p>{answer.answer}</p>
-          {answer.timestamp ? <p className="mt-3 text-xs uppercase tracking-[0.28em] text-cyan-300">Reference: {answer.timestamp}</p> : null}
+          {answer.timestamp ? (
+            <p className="mt-3 text-xs uppercase tracking-[0.28em] text-cyan-300">Reference: {answer.timestamp}</p>
+          ) : null}
         </div>
       ) : null}
     </Card>

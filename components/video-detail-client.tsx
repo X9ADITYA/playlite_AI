@@ -11,6 +11,34 @@ import { Card } from '@/components/ui/card';
 import { VideoPlayer } from '@/components/video-player';
 import { clampText, formatDuration } from '@/lib/utils';
 
+function QuizItem({ question, options, answer }: Readonly<{ question: string; options: string[]; answer: string }>) {
+  const [revealed, setRevealed] = useState(false);
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
+      <p className="font-medium text-white">{question}</p>
+      {options.length > 0 ? (
+        <ul className="mt-2 space-y-1 text-sm text-slate-400">
+          {options.map((option) => (
+            <li key={option}>• {option}</li>
+          ))}
+        </ul>
+      ) : null}
+      {revealed ? (
+        <p className="mt-2 text-sm text-cyan-100/80">Answer: {answer}</p>
+      ) : (
+        <button
+          type="button"
+          onClick={() => setRevealed(true)}
+          className="mt-2 text-xs font-semibold uppercase tracking-[0.2em] text-cyan-300 hover:text-cyan-200"
+        >
+          Show answer
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function VideoDetailClient({
   video,
   relatedVideos
@@ -40,13 +68,12 @@ export function VideoDetailClient({
     durationSeconds: number;
   }>;
 }>) {
-  const [seekMessage, setSeekMessage] = useState<string | null>(null);
+  const [selectedTimestamp, setSelectedTimestamp] = useState<{ time: string; label: string } | null>(null);
 
   const keyTimestamps = useMemo(() => video.keyTimestamps ?? [], [video.keyTimestamps]);
 
   const copyTranscript = async () => {
     await navigator.clipboard.writeText(video.transcript);
-    setSeekMessage('Transcript copied to clipboard.');
   };
 
   return (
@@ -64,21 +91,25 @@ export function VideoDetailClient({
             }}
           />
           <div className="mt-5 space-y-4">
-            <div className="flex flex-wrap items-center gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-3">
               <h1 className="text-3xl font-semibold tracking-tight">{video.title}</h1>
-              <Badge className="border-cyan-300/20 bg-cyan-400/10 text-cyan-100">{formatDuration(video.durationSeconds)}</Badge>
+              <Badge className="shrink-0 border-cyan-300/20 bg-cyan-400/10 text-cyan-100">
+                {formatDuration(video.durationSeconds)}
+              </Badge>
             </div>
             <p className="max-w-4xl text-slate-300">{video.description}</p>
-            <div className="flex flex-wrap gap-2">
-              {video.tags.map((tag) => (
-                <Badge key={tag}>{tag}</Badge>
-              ))}
-            </div>
+            {video.tags.length > 0 ? (
+              <div className="flex flex-wrap gap-2">
+                {video.tags.map((tag) => (
+                  <Badge key={tag}>{tag}</Badge>
+                ))}
+              </div>
+            ) : null}
           </div>
         </Card>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          <Card className="glass-panel border-white/10 p-6">
+        <div className="grid items-stretch gap-6 lg:grid-cols-2">
+          <Card className="glass-panel flex flex-col border-white/10 p-6">
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
                 <BrainCircuit className="h-5 w-5" />
@@ -88,7 +119,9 @@ export function VideoDetailClient({
                 <h2 className="text-xl font-semibold">AI video summary</h2>
               </div>
             </div>
-            <p className="text-sm leading-7 text-slate-300">{video.shortSummary || 'A summary will appear once AI processing completes.'}</p>
+            <p className="text-sm leading-7 text-slate-300">
+              {video.shortSummary || 'A summary will appear once AI processing completes.'}
+            </p>
             <ul className="mt-4 space-y-2 text-sm text-slate-300">
               {video.bulletPoints.map((point) => (
                 <li key={point} className="rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
@@ -98,7 +131,7 @@ export function VideoDetailClient({
             </ul>
           </Card>
 
-          <Card className="glass-panel border-white/10 p-6">
+          <Card className="glass-panel flex flex-col border-white/10 p-6">
             <div className="mb-4 flex items-center gap-3">
               <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
                 <Sparkles className="h-5 w-5" />
@@ -115,14 +148,13 @@ export function VideoDetailClient({
                 </div>
               ))}
             </div>
-            <div className="mt-4 space-y-3">
-              {video.quizQuestions.map((question) => (
-                <div key={question.question} className="rounded-2xl border border-white/10 bg-slate-950/60 px-4 py-3">
-                  <p className="font-medium text-white">{question.question}</p>
-                  <p className="mt-1 text-sm text-cyan-100/80">Answer: {question.answer}</p>
-                </div>
-              ))}
-            </div>
+            {video.quizQuestions.length > 0 ? (
+              <div className="mt-4 space-y-3">
+                {video.quizQuestions.map((question) => (
+                  <QuizItem key={question.question} {...question} />
+                ))}
+              </div>
+            ) : null}
           </Card>
         </div>
 
@@ -137,21 +169,33 @@ export function VideoDetailClient({
             </div>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
-            {keyTimestamps.map((timestamp) => (
-              <button
-                key={`${timestamp.time}-${timestamp.label}`}
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 text-left transition hover:border-cyan-300/30 hover:bg-white/8"
-                onClick={() => setSeekMessage(`${timestamp.time} - ${timestamp.label}`)}
-                type="button"
-              >
-                <p className="text-sm font-semibold text-white">{timestamp.label}</p>
-                <p className="text-xs uppercase tracking-[0.26em] text-cyan-300">{timestamp.time}</p>
-                <p className="mt-2 text-sm leading-6 text-slate-300">{timestamp.note}</p>
-              </button>
-            ))}
-          </div>
-          {seekMessage ? <p className="mt-4 text-sm text-cyan-100">Selected: {seekMessage}</p> : null}
+          {keyTimestamps.length > 0 ? (
+            <div className="grid gap-3 md:grid-cols-2">
+              {keyTimestamps.map((timestamp) => {
+                const isSelected = selectedTimestamp?.time === timestamp.time && selectedTimestamp?.label === timestamp.label;
+                return (
+                  <button
+                    key={`${timestamp.time}-${timestamp.label}`}
+                    className={`rounded-2xl border p-4 text-left transition ${
+                      isSelected
+                        ? 'border-cyan-300/50 bg-cyan-400/10'
+                        : 'border-white/10 bg-white/5 hover:border-cyan-300/30 hover:bg-white/8'
+                    }`}
+                    onClick={() => setSelectedTimestamp({ time: timestamp.time, label: timestamp.label })}
+                    type="button"
+                  >
+                    <p className="text-sm font-semibold text-white">{timestamp.label}</p>
+                    <p className="text-xs uppercase tracking-[0.26em] text-cyan-300">{timestamp.time}</p>
+                    <p className="mt-2 text-sm leading-6 text-slate-300">{timestamp.note}</p>
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="rounded-2xl border border-dashed border-white/10 bg-white/5 px-4 py-6 text-center text-sm text-slate-400">
+              Key moments will appear here once the video is processed.
+            </p>
+          )}
         </Card>
 
         <Card className="glass-panel border-white/10 p-6">
@@ -160,7 +204,7 @@ export function VideoDetailClient({
               <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Transcript</p>
               <h2 className="text-xl font-semibold">Source material</h2>
             </div>
-            <Button variant="secondary" onClick={copyTranscript}>
+            <Button variant="secondary" onClick={copyTranscript} disabled={!video.transcript}>
               <ClipboardCopy className="h-4 w-4" />
               Copy transcript
             </Button>
@@ -208,24 +252,28 @@ export function VideoDetailClient({
 
         <Card className="glass-panel border-white/10 p-6">
           <p className="mb-4 text-xs uppercase tracking-[0.28em] text-slate-500">Related videos</p>
-          <div className="space-y-3">
-            {relatedVideos.map((related) => (
-              <Link key={related.id} href={`/videos/${related.id}`}>
-                <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-cyan-300/30 hover:bg-white/8">
-                  <img
-                    src={related.thumbnailUrl || '/video-thumb.svg'}
-                    alt={related.title}
-                    className="h-20 w-28 rounded-xl object-cover"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-white">{clampText(related.title, 48)}</p>
-                    <p className="mt-1 text-sm text-slate-400">{clampText(related.description, 72)}</p>
-                    <p className="mt-2 text-xs text-cyan-100/70">{formatDuration(related.durationSeconds)}</p>
+          {relatedVideos.length > 0 ? (
+            <div className="space-y-3">
+              {relatedVideos.map((related) => (
+                <Link key={related.id} href={`/videos/${related.id}`}>
+                  <div className="flex gap-3 rounded-2xl border border-white/10 bg-white/5 p-3 transition hover:border-cyan-300/30 hover:bg-white/8">
+                    <img
+                      src={related.thumbnailUrl || '/video-thumb.svg'}
+                      alt={related.title}
+                      className="h-20 w-28 shrink-0 rounded-xl object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-medium text-white">{clampText(related.title, 48)}</p>
+                      <p className="mt-1 text-sm text-slate-400">{clampText(related.description, 72)}</p>
+                      <p className="mt-2 text-xs text-cyan-100/70">{formatDuration(related.durationSeconds)}</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-slate-400">No related videos yet.</p>
+          )}
         </Card>
       </div>
     </div>
