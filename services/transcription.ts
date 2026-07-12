@@ -19,9 +19,9 @@ function resolveFfmpegPath() {
   return ffmpegPath ?? null;
 }
 
-const openai = process.env.OPENAI_API_KEY
-  ? new OpenAI({ 
-      apiKey: process.env.OPENAI_API_KEY,
+const groq = process.env.GROQ_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
       baseURL: 'https://api.groq.com/openai/v1'
     })
   : null;
@@ -39,16 +39,21 @@ async function extractAudioTrack(videoPath: string) {
 }
 
 async function transcribeFile(filePath: string) {
-  if (!openai) {
-    return `Transcript not available yet. Upload the video with OPENAI_API_KEY configured to generate a live transcript. File context: ${path.basename(filePath)}.`;
+  if (!groq) {
+    return `Transcript not available yet. Add GROQ_API_KEY to .env.local to generate a live transcript. File context: ${path.basename(filePath)}.`;
   }
 
-  const transcription = await openai.audio.transcriptions.create({
-    file: fs.createReadStream(filePath),
-    model: 'whisper-1'
-  });
+  try {
+    const transcription = await groq.audio.transcriptions.create({
+      file: fs.createReadStream(filePath),
+      model: process.env.GROQ_WHISPER_MODEL || 'whisper-large-v3-turbo'
+    });
 
-  return transcription.text;
+    return transcription.text;
+  } catch (error) {
+    console.error('Groq transcription failed:', error);
+    return `Transcript unavailable — transcription request failed. File context: ${path.basename(filePath)}.`;
+  }
 }
 
 export async function extractTranscriptFromMediaFile(mediaPath: string, mimeType?: string) {

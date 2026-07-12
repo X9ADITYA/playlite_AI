@@ -2,9 +2,9 @@ import OpenAI from 'openai';
 
 import type { CreatorCopy, LearningPack, LearningQuestion, SummaryRecord, SummaryTimestamp } from '@/models/Video';
 
-const openai = process.env.OPENAI_API_KEY
-  ? new OpenAI({ 
-      apiKey: process.env.OPENAI_API_KEY,
+const groq = process.env.GROQ_API_KEY
+  ? new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
       baseURL: 'https://api.groq.com/openai/v1'
     })
   : null;
@@ -32,13 +32,13 @@ async function runStructuredPrompt<T>(args: {
   user: string;
   fallback: () => T;
 }): Promise<T> {
-  if (!openai) {
+  if (!groq) {
     return args.fallback();
   }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+    const response = await groq.chat.completions.create({
+      model: process.env.GROQ_MODEL || 'openai/gpt-oss-20b',
       temperature: 0.2,
       response_format: { type: 'json_object' },
       messages: [
@@ -50,7 +50,8 @@ async function runStructuredPrompt<T>(args: {
     const content = response.choices[0]?.message?.content ?? '';
     const normalized = normalizeJsonBlock(content);
     return JSON.parse(normalized) as T;
-  } catch {
+  } catch (error) {
+    console.error('Groq completion failed:', error);
     return args.fallback();
   }
 }
@@ -169,7 +170,7 @@ export async function translateText(text: string, targetLanguage: string) {
   return runStructuredPrompt<{ translatedText: string }>({
     system: 'You translate educational text while preserving structure. Return JSON with translatedText only.',
     user: `Target language: ${targetLanguage}\nText:\n${trimContext(text)}`,
-    fallback: () => ({ translatedText: `${text}\n\n[Translation unavailable without OpenAI; target=${targetLanguage}]` })
+    fallback: () => ({ translatedText: `${text}\n\n[Translation unavailable without GROQ_API_KEY; target=${targetLanguage}]` })
   });
 }
 
