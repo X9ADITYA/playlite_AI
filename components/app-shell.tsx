@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Bot, LibraryBig, LogOut, PlaySquare, Sparkles, Upload } from 'lucide-react';
+import { Bot, LibraryBig, LogOut, PlaySquare, Settings, Sparkles, Upload } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -16,7 +16,7 @@ export function AppShell({ user, children }: Readonly<{ user: { name: string; em
     <div className="min-h-screen">
       <div className="mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-4 lg:grid-cols-[280px_1fr] lg:px-6 lg:py-6">
         <aside className="glass-panel flex flex-col gap-6 rounded-3xl p-5">
-          <div className="space-y-4">
+          <div className="space-y-3">
             <Link href="/" className="inline-flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400 text-slate-950">
                 <PlaySquare className="h-6 w-6" />
@@ -33,6 +33,15 @@ export function AppShell({ user, children }: Readonly<{ user: { name: string; em
               <p className="mt-2 text-lg font-semibold">{user?.name ?? 'Browsing as guest'}</p>
               <p className="text-sm text-slate-400">{user?.email ?? 'Sign in to personalize recommendations.'}</p>
             </Card>
+            {user ? (
+              <Link
+                href="/settings"
+                className="flex items-center gap-2 rounded-xl px-2 py-1.5 text-xs font-medium text-slate-400 transition hover:text-cyan-300"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                Account settings
+              </Link>
+            ) : null}
           </div>
 
           <nav className="space-y-2">
