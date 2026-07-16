@@ -59,7 +59,7 @@ export async function getCurrentUser() {
   try {
     const payload = verifyAuthToken(token);
     await connectDb();
-    const user = await User.findById(payload.userId).select('-passwordHash');
+    const user = await User.findById(payload.userId).select('-passwordHash').lean();
 
     if (!user) {
       return null;
