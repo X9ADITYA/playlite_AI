@@ -1,6 +1,6 @@
 import { Suspense } from 'react';
 import Link from 'next/link';
-import { BarChart3, Bot, PlayCircle, Upload } from 'lucide-react';
+import { ArrowRight, BarChart3, Bot, Lightbulb, Upload } from 'lucide-react';
 
 import { AppShell } from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
@@ -18,8 +18,6 @@ import { buildRecommendations } from '@/services/recommendations';
 import type { LeanVideoDocument, LeanUserDocument, LeanWatchEventDocument } from '@/types/models';
 
 export const dynamic = 'force-dynamic';
-
-// --- Data loaders, split so independent queries can run in parallel ---
 
 async function loadLatestVideos() {
   const videos = await Video.find().sort({ createdAt: -1 }).limit(12).lean<LeanVideoDocument[]>();
@@ -49,8 +47,6 @@ async function loadUserContext() {
   return { user, currentUser, watchHistory: hydratedWatchHistory };
 }
 
-// --- Server components for each streamed section ---
-
 async function LatestVideosSection() {
   let videos: ReturnType<typeof serializeVideo>[] = [];
   let failed = false;
@@ -69,7 +65,10 @@ async function LatestVideosSection() {
           <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Library</p>
           <h2 className="text-2xl font-semibold">Latest uploads</h2>
         </div>
-        <PlayCircle className="h-6 w-6 text-cyan-300" />
+        <Link href="/videos" className="flex items-center gap-1 text-sm font-medium text-cyan-300 hover:text-cyan-200">
+          View all
+          <ArrowRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
 
       {failed ? (
@@ -149,6 +148,30 @@ function SectionSkeleton({ label }: { label: string }) {
   );
 }
 
+const quickActions = [
+  {
+    href: '#upload',
+    icon: Upload,
+    label: 'Upload a new video',
+    description: 'Ingest a video and generate AI insights',
+    primary: true
+  },
+  {
+    href: '#search',
+    icon: Bot,
+    label: 'Search your library',
+    description: 'Ask conversationally, get ranked results',
+    primary: false
+  },
+  {
+    href: '#recommendations',
+    icon: BarChart3,
+    label: 'Personalized recommendations',
+    description: 'Picks based on your watch history',
+    primary: false
+  }
+];
+
 export default async function DashboardPage() {
   await connectDb();
   const user = (await getCurrentUser()) || null;
@@ -181,18 +204,50 @@ export default async function DashboardPage() {
           </div>
         </Card>
 
-        <Card className="glass-panel border-white/10 p-6">
+        <Card className="glass-panel flex flex-col border-white/10 p-6">
           <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Quick actions</p>
-          <div className="mt-4 grid gap-3">
-            <Button asChild className="justify-start">
-              <Link href="#upload">Upload a new video</Link>
-            </Button>
-            <Button variant="secondary" asChild className="justify-start">
-              <Link href="#search">Search your library conversationally</Link>
-            </Button>
-            <Button variant="ghost" asChild className="justify-start">
-              <Link href="#recommendations">Open personalized recommendations</Link>
-            </Button>
+          <div className="mt-4 space-y-2">
+            {quickActions.map((action) => {
+              const Icon = action.icon;
+              return (
+                <Link
+                  key={action.href}
+                  href={action.href}
+                  className={
+                    action.primary
+                      ? 'flex items-center gap-3 rounded-2xl bg-cyan-400 px-4 py-3 text-slate-950 transition hover:bg-cyan-300'
+                      : 'flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3 transition hover:border-cyan-300/30 hover:bg-white/8'
+                  }
+                >
+                  <div
+                    className={
+                      action.primary
+                        ? 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-950/10'
+                        : 'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-400/10 text-cyan-300'
+                    }
+                  >
+                    <Icon className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className={action.primary ? 'font-semibold text-slate-950' : 'font-semibold text-white'}>
+                      {action.label}
+                    </p>
+                    <p className={action.primary ? 'text-xs text-slate-950/70' : 'text-xs text-slate-400'}>
+                      {action.description}
+                    </p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          <div className="mt-auto pt-6">
+            <div className="flex gap-3 rounded-2xl border border-dashed border-white/10 bg-white/5 p-4">
+              <Lightbulb className="h-4 w-4 shrink-0 text-cyan-300" />
+              <p className="text-xs leading-5 text-slate-400">
+                Tip: the more videos you watch, the better your recommendations get — PlayLite learns from your topics and watch history.
+              </p>
+            </div>
           </div>
         </Card>
       </section>
