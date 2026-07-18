@@ -15,19 +15,19 @@ export function AppShell({ user, children }: Readonly<{ user: { name: string; em
   return (
     <div className="min-h-screen">
       <div className="mx-auto grid min-h-screen max-w-7xl gap-6 px-4 py-4 lg:grid-cols-[280px_1fr] lg:px-6 lg:py-6">
-        <aside className="glass-panel flex flex-col gap-6 rounded-3xl p-5">
+        <Card variant="elevated" className="flex flex-col gap-6 p-5">
           <div className="space-y-3">
             <Link href="/" className="inline-flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-cyan-400 text-slate-950">
                 <PlaySquare className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.28em] text-cyan-300">PlayLite AI</p>
+                <p className="font-mono-label text-xs text-cyan-300">PlayLite AI</p>
                 <p className="text-sm text-slate-300">Video learning workspace</p>
               </div>
             </Link>
-            <Card className="border-white/10 bg-white/5 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-slate-500">
+            <Card className="p-4">
+              <p className="telemetry-rule font-mono-label text-xs text-slate-500">
                 {user ? 'Signed in' : 'Guest mode'}
               </p>
               <p className="mt-2 text-lg font-semibold">{user?.name ?? 'Browsing as guest'}</p>
@@ -74,7 +74,7 @@ export function AppShell({ user, children }: Readonly<{ user: { name: string; em
               </Button>
             )}
           </div>
-        </aside>
+        </Card>
 
         <main className="space-y-6">{children}</main>
       </div>

@@ -1,5 +1,20 @@
 import { cn } from '@/lib/utils';
 
-export function Card({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('rounded-3xl border border-white/10 bg-white/5 shadow-glow backdrop-blur-md', className)} {...props} />;
+type CardVariant = 'flat' | 'elevated';
+
+export function Card({
+  className,
+  variant = 'flat',
+  ...props
+}: React.HTMLAttributes<HTMLDivElement> & { variant?: CardVariant }) {
+  return (
+    <div
+      className={cn(
+        'rounded-3xl',
+        variant === 'elevated' ? 'glass-panel' : 'surface-panel',
+        className
+      )}
+      {...props}
+    />
+  );
 }

@@ -70,13 +70,13 @@ export function UploadVideoForm() {
   }
 
   return (
-    <Card className="glass-panel border-white/10 p-6" id="upload">
+    <Card className="p-6" id="upload">
       <div className="mb-5 flex items-center gap-3">
         <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
           <Upload className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Upload</p>
+          <p className="telemetry-rule font-mono-label text-xs text-slate-500">Upload</p>
           <h2 className="text-xl font-semibold">Add a new learning video</h2>
         </div>
       </div>

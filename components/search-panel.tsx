@@ -21,7 +21,7 @@ export function SearchPanel() {
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [results, setResults] = useState
+  const [results, setResults] = useState<
     Array<{ id: string; title: string; description: string; tags: string[]; durationSeconds: number; videoUrl: string; score: number; reason: string }>
   >([]);
   const [summary, setSummary] = useState('');
@@ -53,13 +53,13 @@ export function SearchPanel() {
   }
 
   return (
-    <Card className="glass-panel border-white/10 p-6" id="search">
+    <Card className="p-6" id="search">
       <div className="mb-4 flex items-center gap-3">
         <div className="rounded-2xl bg-cyan-400/10 p-3 text-cyan-300">
           <Search className="h-5 w-5" />
         </div>
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Conversational search</p>
+          <p className="telemetry-rule font-mono-label text-xs text-slate-500">Conversational search</p>
           <h2 className="text-xl font-semibold">Ask for a type of video</h2>
         </div>
       </div>
@@ -97,7 +97,7 @@ export function SearchPanel() {
                         </div>
                         <Badge className={`shrink-0 whitespace-nowrap ${match.tone}`}>{match.text}</Badge>
                       </div>
-                      <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
+                      <div className="mt-3 flex flex-wrap items-center gap-2 font-mono text-xs text-slate-500">
                         <span>{formatDuration(result.durationSeconds)}</span>
                         <span>•</span>
                         <span>{result.reason}</span>

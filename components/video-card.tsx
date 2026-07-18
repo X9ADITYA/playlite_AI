@@ -33,7 +33,7 @@ export function VideoCard({
   const match = typeof score === 'number' ? matchLabel(score) : null;
 
   return (
-    <Card className="group overflow-hidden border-white/10 bg-slate-950/50 transition hover:-translate-y-1 hover:border-cyan-300/25">
+    <Card className="group overflow-hidden transition hover:-translate-y-1 hover:border-cyan-300/25">
       <Link href={`/videos/${video.id}`} className="block">
         <div className="relative aspect-video overflow-hidden bg-slate-900">
           <img
@@ -42,7 +42,7 @@ export function VideoCard({
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-transparent" />
-          <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 text-xs text-white backdrop-blur">
+          <div className="absolute bottom-3 left-3 flex items-center gap-2 rounded-full bg-black/60 px-3 py-1 font-mono text-xs text-white backdrop-blur">
             <Play className="h-3.5 w-3.5 fill-white" />
             {formatDuration(video.durationSeconds)}
           </div>
@@ -65,7 +65,7 @@ export function VideoCard({
             ))}
           </div>
 
-          <div className="flex items-center justify-between gap-3 text-xs text-slate-500">
+          <div className="flex items-center justify-between gap-3 font-mono text-xs text-slate-500">
             <div className="flex items-center gap-2">
               <Clock3 className="h-3.5 w-3.5" />
               {formatTimestamp(video.createdAt ?? null)}

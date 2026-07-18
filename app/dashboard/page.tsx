@@ -15,31 +15,29 @@ import User from '@/models/User';
 import Video from '@/models/Video';
 import WatchEvent from '@/models/WatchEvent';
 import { buildRecommendations } from '@/services/recommendations';
-import type { LeanVideoDocument, LeanUserDocument, LeanWatchEventDocument } from '@/types/models';
-
 export const dynamic = 'force-dynamic';
 
 async function loadLatestVideos() {
-  const videos = await Video.find().sort({ createdAt: -1 }).limit(12).lean<LeanVideoDocument[]>();
+  const videos = await Video.find().sort({ createdAt: -1 }).limit(12).lean<any[]>();
   return videos.map((video) => serializeVideo(video));
 }
 
 async function loadUserContext() {
   const user = (await getCurrentUser()) || null;
   if (!user) {
-    return { user: null, currentUser: null, watchHistory: [] as LeanWatchEventDocument[] };
+    return { user: null, currentUser: null, watchHistory: [] as any[] };
   }
 
   const [currentUser, watchHistory] = await Promise.all([
-    User.findById(user.id).lean<LeanUserDocument | null>(),
+    User.findById(user.id).lean<any | null>(),
     WatchEvent.find({ userId: user.id })
       .populate('videoId')
       .sort({ updatedAt: -1 })
       .limit(24)
-      .lean<LeanWatchEventDocument[]>()
+        .lean<any[]>()
   ]);
 
-  const hydratedWatchHistory = watchHistory.map((event) => ({
+      const hydratedWatchHistory = watchHistory.map((event: any) => ({
     ...event,
     video: event.videoId ?? null
   }));
@@ -59,10 +57,10 @@ async function LatestVideosSection() {
   }
 
   return (
-    <Card className="glass-panel border-white/10 p-6">
+    <Card className="p-6">
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Library</p>
+          <p className="telemetry-rule font-mono-label text-xs text-slate-500">Library</p>
           <h2 className="text-2xl font-semibold">Latest uploads</h2>
         </div>
         <Link href="/videos" className="flex items-center gap-1 text-sm font-medium text-cyan-300 hover:text-cyan-200">
@@ -92,7 +90,7 @@ async function RecommendationsSection() {
 
   try {
     const [videos, { currentUser, watchHistory }] = await Promise.all([
-      Video.find().sort({ createdAt: -1 }).limit(12).lean<LeanVideoDocument[]>(),
+      Video.find().sort({ createdAt: -1 }).limit(12).lean<any[]>(),
       loadUserContext()
     ]);
 
@@ -109,10 +107,10 @@ async function RecommendationsSection() {
   }
 
   return (
-    <Card className="glass-panel border-white/10 p-6">
+    <Card className="p-6">
       <div className="mb-5 flex items-center justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Personalized</p>
+          <p className="telemetry-rule font-mono-label text-xs text-slate-500">Personalized</p>
           <h2 className="text-2xl font-semibold">Smart recommendations</h2>
         </div>
         <Button variant="secondary" asChild>
@@ -137,8 +135,8 @@ async function RecommendationsSection() {
 
 function SectionSkeleton({ label }: { label: string }) {
   return (
-    <Card className="glass-panel border-white/10 p-6">
-      <p className="text-xs uppercase tracking-[0.28em] text-slate-500">{label}</p>
+    <Card className="p-6">
+      <p className="font-mono-label text-xs text-slate-500">{label}</p>
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="h-28 animate-pulse rounded-2xl bg-white/5" />
@@ -179,8 +177,8 @@ export default async function DashboardPage() {
   return (
     <AppShell user={user}>
       <section className="grid gap-6 lg:grid-cols-[1.25fr_0.75fr]">
-        <Card className="glass-panel border-white/10 p-6">
-          <p className="text-xs uppercase tracking-[0.32em] text-cyan-300/80">Overview</p>
+        <Card variant="elevated" className="p-6">
+          <p className="telemetry-rule font-mono-label text-xs text-cyan-300/80">Overview</p>
           <h1 className="mt-3 text-4xl font-semibold tracking-tight">Your AI video learning workspace.</h1>
           <p className="mt-3 max-w-2xl text-slate-300">
             Upload a video, let PlayLite extract transcripts and summaries, then ask questions and build a personalized learning feed.
@@ -196,7 +194,7 @@ export default async function DashboardPage() {
               return (
                 <div key={metric.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
                   <Icon className="h-5 w-5 text-cyan-300" aria-hidden="true" />
-                  <p className="mt-3 text-xs uppercase tracking-[0.28em] text-slate-500">{metric.label}</p>
+                  <p className="font-mono-label mt-3 text-xs text-slate-500">{metric.label}</p>
                   <p className="mt-1 font-semibold text-white">{metric.value}</p>
                 </div>
               );
@@ -204,8 +202,8 @@ export default async function DashboardPage() {
           </div>
         </Card>
 
-        <Card className="glass-panel flex flex-col border-white/10 p-6">
-          <p className="text-xs uppercase tracking-[0.28em] text-slate-500">Quick actions</p>
+        <Card className="flex flex-col p-6">
+          <p className="font-mono-label text-xs text-slate-500">Quick actions</p>
           <div className="mt-4 space-y-2">
             {quickActions.map((action) => {
               const Icon = action.icon;
