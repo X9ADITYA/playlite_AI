@@ -214,7 +214,7 @@ This project is licensed under the MIT License.
 **Aditya Darekar**
 
 - GitHub: https://github.com/X9ADITYA
-- LinkedIn: https://linkedin.com/in/yourprofile
+- LinkedIn: https://www.linkedin.com/in/aditya-darekar-03492b2a6
 
 ---
 
