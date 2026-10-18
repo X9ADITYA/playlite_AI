@@ -14,7 +14,7 @@ PlayLite AI transforms video libraries into an interactive learning platform pow
 - Automatic video summarization
 - Key takeaways
 - Bullet-point notes
-- Important timestamps
+- Important timestamps as per the video
 
 ### 💬 Ask the Video
 - Chat with your uploaded videos
