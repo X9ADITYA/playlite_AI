@@ -25,7 +25,7 @@ PlayLite AI transforms video libraries into an interactive learning platform pow
 ### 📝 Video Transcription
 - Fast and accurate speech-to-text
 - Searchable transcripts
-- Timestamp support
+- Timestamp support per video
 
 ### 🎨 Creator Tools
 Generate content directly from your videos:
